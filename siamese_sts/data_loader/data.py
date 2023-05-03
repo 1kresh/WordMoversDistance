@@ -25,7 +25,8 @@ class STSData:
         pretrained_model_name="prajjwal1/bert-mini",
         normalization_const=5.0,
         normalize_labels=False,
-        prevocab=lambda x: x
+        prevocab=lambda x: x,
+        vector_cache='.vector_cache'
     ):
         """
         Loads data into memory and create vocabulary from text field.
@@ -45,7 +46,7 @@ class STSData:
         self.val_set = prevocab(self.val_set)
         self.test_set = prevocab(self.test_set)
         
-        self.create_vocab()
+        self.create_vocab(vector_cache)
 
     def load_data(self, dataset_name, columns_mapping, stopwords_path):
         """
@@ -64,7 +65,7 @@ class STSData:
         self.test_set = preprocessor.perform_preprocessing(test_set, columns_mapping)
         logging.info("reading and preprocessing data completed...")
 
-    def create_vocab(self):
+    def create_vocab(self, vector_cache):
         """
         Creates vocabulary over entire text data field.
         """
@@ -76,7 +77,7 @@ class STSData:
         self.en_tokenizer = get_tokenizer("spacy", language="en_core_web_sm")
 
         # get the vocab instance
-        self.vocab = torchtext.vocab.FastText()
+        self.vocab = torchtext.vocab.FastText(cache=vector_cache)
         logging.info("creating vocabulary completed...")
 
     def data2tensors(self, data):
